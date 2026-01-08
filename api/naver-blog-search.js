@@ -88,8 +88,14 @@ function extractBlogId(url) {
 
 // 블로그 데이터 분석 및 점수 계산
 function analyzeBlogData(naverData, blogId) {
-  const items = naverData.items || [];
+  const allItems = naverData.items || [];
   const total = naverData.total || 0;
+
+  // ✅ 핵심 수정: 정확히 해당 블로그의 게시물만 필터링
+  const items = allItems.filter(item => {
+    const blogLink = item.bloggerlink || item.link || '';
+    return blogLink.includes(`blog.naver.com/${blogId}`);
+  });
 
   // 실제 게시물이 없는 경우
   if (items.length === 0) {
@@ -113,14 +119,17 @@ function analyzeBlogData(naverData, blogId) {
   // 게시물 분석
   const recentPosts = items.slice(0, 20);
   
+  // ✅ 수정: 필터링된 게시물 수로 계산
+  const actualTotal = items.length;
+  
   // 콘텐츠 점수 계산 (게시물 수 기반)
-  const contentScore = Math.min(100, Math.floor((total / 10) + 50));
+  const contentScore = Math.min(100, Math.floor((actualTotal / 10) + 50));
   
   // 활동 점수 계산 (최근 게시물 기반)
   const activityScore = Math.min(100, Math.floor((recentPosts.length / 20) * 100));
   
   // 영향력 점수 계산 (검색 노출 횟수 기반)
-  const influenceScore = Math.min(100, Math.floor((total / 50) + 60));
+  const influenceScore = Math.min(100, Math.floor((actualTotal / 50) + 60));
   
   // 전체 점수 (가중 평균)
   const totalScore = Math.floor(
@@ -142,8 +151,8 @@ function analyzeBlogData(naverData, blogId) {
     influenceScore: influenceScore,
     contentScore: contentScore,
     activityScore: activityScore,
-    totalPosts: total,
-    totalVisitors: Math.floor(total * 150), // 추정치
+    totalPosts: actualTotal,
+    totalVisitors: Math.floor(actualTotal * 150), // 추정치
     avgCommentsPerPost: Math.floor(Math.random() * 15) + 5, // API에서 제공하지 않는 정보
     lastUpdated: new Date().toISOString().split('T')[0],
     rank: Math.floor(10000 / (totalScore / 10)), // 추정 랭킹
