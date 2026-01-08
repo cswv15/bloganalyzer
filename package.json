@@ -8,5 +8,6 @@
   },
   "keywords": ["naver", "blog", "api", "vercel"],
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "type": "module"
 }
