@@ -4,7 +4,7 @@
  */
 
 const { extractBlogId } = require('../lib/utils');
-const { searchNaverBlog, filterBlogPosts } = require('../lib/naverApi');
+const { fetchBlogRSS, getBlogName } = require('../lib/naverApi');
 const { analyzeBlogData } = require('../lib/blogAnalyzer');
 
 module.exports = async function handler(req, res) {
@@ -43,15 +43,23 @@ module.exports = async function handler(req, res) {
   try {
     // 1. 블로그 ID 추출
     const blogId = extractBlogId(blogUrl);
+    console.log(`[DEBUG] Analyzing blog: ${blogId}`);
     
-    // 2. 네이버 블로그 검색 API 호출
-    const naverData = await searchNaverBlog(blogId, CLIENT_ID, CLIENT_SECRET);
+    // 2. RSS 피드에서 블로그 글 가져오기
+    const rssItems = await fetchBlogRSS(blogId);
     
-    // 3. 해당 블로그 게시물만 필터링
-    const filteredPosts = filterBlogPosts(naverData, blogId);
+    if (rssItems.length === 0) {
+      return res.status(404).json({ 
+        error: '블로그를 찾을 수 없거나 공개된 글이 없습니다',
+        blogId: blogId
+      });
+    }
+    
+    // 3. 블로그 이름 가져오기 (검색 API 활용)
+    const blogName = await getBlogName(blogId, CLIENT_ID, CLIENT_SECRET);
     
     // 4. 블로그 분석 점수 계산
-    const analysisResult = analyzeBlogData(filteredPosts, blogId);
+    const analysisResult = analyzeBlogData(rssItems, blogId, blogName);
 
     return res.status(200).json(analysisResult);
 
