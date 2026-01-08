@@ -3,11 +3,11 @@
  * 네이버 블로그 분석 API 엔드포인트
  */
 
-import { extractBlogId } from '../lib/utils.js';
-import { searchNaverBlog, filterBlogPosts } from '../lib/naverApi.js';
-import { analyzeBlogData } from '../lib/blogAnalyzer.js';
+const { extractBlogId } = require('../lib/utils');
+const { searchNaverBlog, filterBlogPosts } = require('../lib/naverApi');
+const { analyzeBlogData } = require('../lib/blogAnalyzer');
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   // CORS 설정
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -62,4 +62,4 @@ export default async function handler(req, res) {
       message: error.message 
     });
   }
-}
+};
