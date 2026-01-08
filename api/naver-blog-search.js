@@ -4,7 +4,7 @@
  */
 
 const { extractBlogId } = require('../lib/utils');
-const { fetchBlogRSS, getBlogName } = require('../lib/naverApi');
+const { fetchBlogRSS, checkRecentPostsIndexing, getBlogName } = require('../lib/naverApi');
 const { analyzeBlogData } = require('../lib/blogAnalyzer');
 
 module.exports = async function handler(req, res) {
@@ -55,11 +55,18 @@ module.exports = async function handler(req, res) {
       });
     }
     
-    // 3. 블로그 이름 가져오기 (검색 API 활용)
+    // 3. 최근 10개 글만 선택
+    const recentPosts = rssItems.slice(0, 10);
+    
+    // 4. 최근 10개 글의 누락 여부 체크 (blogId 전달)
+    console.log(`[DEBUG] Checking indexing status for ${recentPosts.length} recent posts...`);
+    const postsWithIndexing = await checkRecentPostsIndexing(recentPosts, blogId, CLIENT_ID, CLIENT_SECRET);
+    
+    // 5. 블로그 이름 가져오기
     const blogName = await getBlogName(blogId, CLIENT_ID, CLIENT_SECRET);
     
-    // 4. 블로그 분석 점수 계산
-    const analysisResult = analyzeBlogData(rssItems, blogId, blogName);
+    // 6. 블로그 분석 점수 계산
+    const analysisResult = analyzeBlogData(rssItems, postsWithIndexing, blogId, blogName);
 
     return res.status(200).json(analysisResult);
 
