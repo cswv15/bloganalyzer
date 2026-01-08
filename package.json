@@ -1,12 +1,24 @@
 {
   "name": "bloganalyzer",
   "version": "1.0.0",
-  "description": "Naver Blog Analysis API Server",
-  "main": "api/naver-blog-search.js",
+  "description": "네이버 블로그 분석 API",
+  "main": "api/naver-blog-search/index.js",
   "scripts": {
-    "test": "echo \"No tests yet\""
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
   },
-  "keywords": ["naver", "blog", "api", "vercel"],
+  "keywords": [
+    "naver",
+    "blog",
+    "analyzer",
+    "api"
+  ],
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "rss-parser": "^3.13.0"
+  },
+  "devDependencies": {
+    "vercel": "^33.0.0"
+  }
 }
